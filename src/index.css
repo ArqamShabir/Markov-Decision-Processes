@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 217 33% 17%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 199 89% 48%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 217 33% 25%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 20%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 142 76% 36%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 25%;
+    --input: 217 33% 25%;
+    --ring: 199 89% 48%;
+
+    --radius: 0.75rem;
+
+    /* Custom MDP Colors */
+    --goal: 142 76% 36%;
+    --goal-foreground: 210 40% 98%;
+    --danger: 0 84% 60%;
+    --danger-foreground: 210 40% 98%;
+    --obstacle: 217 33% 30%;
+    --agent: 45 93% 58%;
+    
+    /* Heatmap gradient colors */
+    --heat-cold: 199 89% 48%;
+    --heat-warm: 0 84% 60%;
+    --heat-neutral: 217 33% 40%;
+
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 33% 20%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 25%;
+    --sidebar-ring: 199 89% 48%;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 217 33% 17%;
+    --card-foreground: 210 40% 98%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 199 89% 48%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 25%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 20%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 142 76% 36%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 25%;
+    --input: 217 33% 25%;
+    --ring: 199 89% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer components {
+  .grid-cell {
+    @apply relative flex items-center justify-center border border-border/50 transition-all duration-300;
+  }
+
+  .grid-cell-empty {
+    @apply bg-card hover:bg-secondary/50;
+  }
+
+  .grid-cell-goal {
+    @apply bg-accent/20 border-accent;
+  }
+
+  .grid-cell-danger {
+    @apply bg-destructive/20 border-destructive;
+  }
+
+  .grid-cell-obstacle {
+    @apply bg-muted;
+  }
+
+  .policy-arrow {
+    @apply text-foreground/80 transition-transform duration-200;
+  }
+
+  .value-display {
+    @apply font-mono text-xs font-semibold;
+  }
+
+  .heatmap-gradient {
+    background: linear-gradient(
+      to right,
+      hsl(var(--heat-cold)),
+      hsl(var(--heat-neutral)),
+      hsl(var(--heat-warm))
+    );
+  }
+}
+
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .glass-panel {
+    @apply bg-card/80 backdrop-blur-sm border border-border/50 rounded-lg;
+  }
+}
