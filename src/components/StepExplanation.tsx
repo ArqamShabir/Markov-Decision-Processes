@@ -1,6 +1,6 @@
 import { Cell, MDPState, ACTIONS, ACTION_DELTAS, PERPENDICULAR_ACTIONS } from '@/lib/mdp';
 import { cn } from '@/lib/utils';
-import { Info, Calculator, ArrowRight, Target, Zap } from 'lucide-react';
+import { Info, Calculator, Target, Zap } from 'lucide-react';
 
 interface StepExplanationProps {
   state: MDPState;
@@ -35,29 +35,8 @@ function getNextState(
 export function StepExplanation({ state, algorithm, selectedCell }: StepExplanationProps) {
   const { grid, gamma, iteration, transitionProbability, stepCost, goalReward, dangerReward } = state;
 
-  if (iteration === 0) {
-    return (
-      <div className="glass-panel p-4">
-        <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-primary mt-0.5" />
-          <div>
-            <h3 className="font-semibold text-sm mb-2">Ready to Start</h3>
-            <p className="text-sm text-muted-foreground">
-              All cells start with value 0. The goal has reward +{goalReward} and danger has penalty {dangerReward}.
-              Each step costs {stepCost}. Press <span className="font-semibold text-primary">Step</span> to begin learning!
-            </p>
-            <div className="mt-3 p-3 bg-muted/30 rounded-md">
-              <p className="text-xs text-muted-foreground font-mono">
-                {algorithm === 'value' 
-                  ? 'V(s) ← max_a Σ P(s\'|s,a)[R(s,a,s\') + γV(s\')]'
-                  : 'Policy Iteration: Evaluate → Improve → Repeat'
-                }
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  if (iteration === 0 && !selectedCell) {
+    return null;
   }
 
   if (selectedCell) {

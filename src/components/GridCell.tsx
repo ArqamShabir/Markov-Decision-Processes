@@ -6,15 +6,19 @@ interface GridCellProps {
   cell: Cell;
   showValues: boolean;
   showPolicy: boolean;
+  policyDelaySeconds?: number;
   minValue: number;
   maxValue: number;
   onClick?: () => void;
   previousValue?: number;
   isSelected?: boolean;
   showDelta?: boolean;
+  isStart?: boolean;
+  isPath?: boolean;
+  pathDelaySeconds?: number;
 }
 
-const PolicyArrow = ({ action }: { action: Action }) => {
+const PolicyArrow = ({ action, delaySeconds = 0 }: { action: Action; delaySeconds?: number }) => {
   const icons = {
     up: ArrowUp,
     down: ArrowDown,
@@ -22,7 +26,12 @@ const PolicyArrow = ({ action }: { action: Action }) => {
     right: ArrowRight,
   };
   const Icon = icons[action];
-  return <Icon className="w-6 h-6 policy-arrow" />;
+  return (
+    <Icon
+      className="w-6 h-6 policy-arrow"
+      style={{ animationDelay: `${delaySeconds}s` }}
+    />
+  );
 };
 
 function getValueColor(value: number, minValue: number, maxValue: number): string {
@@ -47,12 +56,16 @@ export function GridCell({
   cell, 
   showValues, 
   showPolicy, 
+  policyDelaySeconds = 0,
   minValue, 
   maxValue, 
   onClick,
   previousValue,
   isSelected,
   showDelta = false,
+  isStart = false,
+  isPath = false,
+  pathDelaySeconds = 0,
 }: GridCellProps) {
   const getCellStyle = () => {
     switch (cell.type) {
@@ -66,26 +79,19 @@ export function GridCell({
         if (showValues && cell.value !== 0) {
           return 'border-border/50';
         }
+        if (isPath && cell.type === 'empty') {
+          return 'border-primary/60';
+        }
         return 'bg-card border-border/50';
     }
   };
 
   const getValueBackground = () => {
-    if (cell.type !== 'empty' || !showValues) return {};
-    
-    if (cell.value === 0) return {};
-    
-    const normalized = maxValue !== minValue 
-      ? (cell.value - minValue) / (maxValue - minValue) 
-      : 0.5;
-    
-    const hue = 200 - normalized * 200;
-    const saturation = 70;
-    const lightness = 20 + normalized * 15;
-    
-    return {
-      backgroundColor: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
-    };
+    if (cell.type !== 'empty') return {};
+    if (isPath) {
+      return { animationDelay: `${pathDelaySeconds}s` };
+    }
+    return {};
   };
 
   const getCellIcon = () => {
@@ -104,6 +110,10 @@ export function GridCell({
   const delta = previousValue !== undefined ? cell.value - previousValue : 0;
   const hasChanged = Math.abs(delta) > 0.0001;
 
+  const policyBlinkStyle = (showPolicy && cell.policy && !isPath)
+    ? ({ '--policy-delay': `${policyDelaySeconds}s` } as React.CSSProperties)
+    : {};
+
   return (
     <div
       onClick={onClick}
@@ -113,13 +123,15 @@ export function GridCell({
         'hover:scale-105 hover:z-10 hover:shadow-lg hover:shadow-primary/20',
         'rounded-md overflow-hidden',
         getCellStyle(),
+        isPath && cell.type === 'empty' && 'path-highlight',
+        showPolicy && cell.policy && !isPath && 'policy-blink',
         isSelected && 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-105 z-20',
-        hasChanged && showDelta && 'animate-pulse'
+        hasChanged && showDelta && 'delta-flash'
       )}
-      style={getValueBackground()}
+      style={{ ...getValueBackground(), ...policyBlinkStyle }}
     >
       {/* Delta indicator */}
-      {showDelta && hasChanged && cell.type === 'empty' && (
+      {showDelta && showValues && hasChanged && cell.type === 'empty' && (
         <div className={cn(
           'absolute top-0 left-0 right-0 text-center text-[9px] font-mono py-0.5',
           delta > 0 ? 'bg-accent/40 text-accent' : 'bg-destructive/40 text-destructive'
@@ -129,13 +141,22 @@ export function GridCell({
       )}
       
       <div className="flex flex-col items-center justify-center w-full h-full p-2">
+        {isStart && (
+          <div className="absolute top-1 left-1 rounded bg-primary/20 text-primary text-[9px] px-1.5 py-0.5 font-semibold tracking-wide">
+            START
+          </div>
+        )}
         {getCellIcon()}
         
         {cell.type === 'empty' && (
           <>
             {showPolicy && cell.policy && (
               <div className="absolute">
-                <PolicyArrow action={cell.policy} />
+                <PolicyArrow
+                  key={`${cell.policy}-${policyDelaySeconds}`}
+                  action={cell.policy}
+                  delaySeconds={policyDelaySeconds}
+                />
               </div>
             )}
             

@@ -21,12 +21,6 @@ export function InfoPanel() {
               <li><strong>γ:</strong> Discount factor (adjustable)</li>
             </ul>
           </div>
-          <div>
-            <h4 className="font-semibold text-foreground mb-2">Bellman Equation</h4>
-            <div className="font-mono text-xs bg-muted/50 p-3 rounded overflow-x-auto">
-              V(s) = max<sub>a</sub> Σ P(s'|s,a)[R(s,a,s') + γV(s')]
-            </div>
-          </div>
         </TabsContent>
         
         <TabsContent value="value" className="text-sm space-y-4 text-muted-foreground">

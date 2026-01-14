@@ -6,7 +6,6 @@ import { InfoPanel } from '@/components/InfoPanel';
 import { GridEditor } from '@/components/GridEditor';
 import { StepExplanation } from '@/components/StepExplanation';
 import { ConvergenceGraph } from '@/components/ConvergenceGraph';
-import { CellUpdateTracker } from '@/components/CellUpdateTracker';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import {
@@ -29,6 +28,7 @@ const Index = () => {
   const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
   const [previousGrid, setPreviousGrid] = useState<Cell[][] | null>(null);
   const [deltaHistory, setDeltaHistory] = useState<number[]>([]);
+  const runTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const handleStep = useCallback(() => {
     setState((prev) => {
@@ -103,15 +103,27 @@ const Index = () => {
   // Auto-run effect
   useEffect(() => {
     if (!isRunning || state.converged) {
+      if (runTimerRef.current) {
+        clearInterval(runTimerRef.current);
+        runTimerRef.current = null;
+      }
       if (state.converged) setIsRunning(false);
       return;
     }
 
-    const timer = setTimeout(() => {
+    if (!runTimerRef.current) {
       handleStep();
-    }, 400); // Slowed down for better visualization
+      runTimerRef.current = setInterval(() => {
+        handleStep();
+      }, 1000);
+    }
 
-    return () => clearTimeout(timer);
+    return () => {
+      if (runTimerRef.current) {
+        clearInterval(runTimerRef.current);
+        runTimerRef.current = null;
+      }
+    };
   }, [isRunning, state.converged, handleStep]);
 
   return (
@@ -142,6 +154,7 @@ const Index = () => {
               previousGrid={previousGrid}
               showValues={showValues}
               showPolicy={showPolicy}
+              animatePolicy={!state.converged}
               showDelta={showDelta}
               selectedCell={selectedCell}
               onCellClick={handleCellClick}
@@ -156,12 +169,6 @@ const Index = () => {
             
             {/* Convergence Graph */}
             <ConvergenceGraph deltaHistory={deltaHistory} />
-            
-            {/* Cell Update Tracker */}
-            <CellUpdateTracker 
-              previousGrid={previousGrid}
-              currentGrid={state.grid}
-            />
             
             <InfoPanel />
           </div>
@@ -190,7 +197,6 @@ const Index = () => {
       </main>
 
       <footer className="border-t border-border/50 py-4 text-center text-sm text-muted-foreground">
-        <p>MDP Grid World Visualizer • AI Assignment #2</p>
       </footer>
     </div>
   );
